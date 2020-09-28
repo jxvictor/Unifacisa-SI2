@@ -1,12 +1,30 @@
 package com.game.store.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class Games {
 	private int id;
+	
+	@NotEmpty(message = "O campo titulo é obrigatório")
 	private String titulo;
+	
+	@NotEmpty(message = "O campo imagem é obrigatório")
 	private String imagem;
+	
+	@NotNull(message = "O campo preco é obrigatório")
 	private double preco;
+	
 	private int numeroDeVendas;
+	
+	public Games(int id, String titulo, String imagem, double preco, int numeroDeVendas) {
+		this.id = id;
+		this.titulo = titulo;
+		this.imagem = imagem;
+		this.preco = preco;
+		this.numeroDeVendas = numeroDeVendas;
+	}
 	/**
 	 * @return the id
 	 */

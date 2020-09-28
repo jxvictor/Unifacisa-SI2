@@ -20,7 +20,7 @@ import com.game.store.repository.GamesRepository;
 
 
 @RestController
-@RequestMapping("/games")
+@RequestMapping("/v1/games")
 
 public class GamesController {
 	
@@ -31,37 +31,51 @@ public class GamesController {
 		this.gamesRepository = new GamesRepository();
 	}
 	
-	@PostMapping
-	public void cadastrar(@RequestBody Games game) {
-		gamesRepository.cadastrar(game);
-	}
-	
-	//
 	@GetMapping()
-	public ResponseEntity<List<Games>> obterTodos(Games game){
-		try 
+	public ResponseEntity<List<Games>> obterTodos(){		
+		try
 		{
-			return ResponseEntity.ok(gamesRepository.obterTodos());
+			return new ResponseEntity<List<Games>>(gamesRepository.obterTodos(), HttpStatus.OK);
 		}
 		catch(Exception e)
 		{
-			return (ResponseEntity<List<Games>>)ResponseEntity.badRequest();
+			return new ResponseEntity<List<Games>>(HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PostMapping()
+	public ResponseEntity<String> cadastrar(@RequestBody Games game)
+	{
+		try
+		{
+			gamesRepository.cadastrar(game);
+			return new ResponseEntity<String>("Game cadastrado com sucesso", HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		}
 	}
 	
-	@DeleteMapping()
-	public void deletarGame(@RequestBody Games game)
-	{
-		gamesRepository.remover(game);
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deletar(@PathVariable int id){
+		try
+		{
+			gamesRepository.remover(id);
+			return new ResponseEntity<String>("Game removido com sucesso", HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		}
 	}
 	
-	@PutMapping()
-	public ResponseEntity<Games> editar(@RequestBody Games game, @PathVariable int id) throws Exception{
-		
+	@PutMapping("/{id}")
+	public ResponseEntity<Games> editar(@PathVariable int id, @RequestBody Games game){
 		try {
-			return new ResponseEntity<Games>(gamesRepository.editar(game, id), HttpStatus.OK);
-		} catch (Exception e) {
-			return new  ResponseEntity<Games>(HttpStatus.BAD_REQUEST);
+			Games gameEditado = gamesRepository.editar(game, id);
+			return new ResponseEntity<Games>(gameEditado, HttpStatus.OK); 
+		}
+		catch(Exception e) {
+			return new ResponseEntity<Games>(HttpStatus.BAD_REQUEST);
 		}
 	}
 	

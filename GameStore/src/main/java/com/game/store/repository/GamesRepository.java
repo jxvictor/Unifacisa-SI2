@@ -17,11 +17,8 @@ public class GamesRepository{
 	public List<Games> obterTodos(){
 		return games;
 	}
-	public void remover(Games game) {
-		if(games.contains(game)) 
-		{
-			games.remove(game);
-		}
+	public void remover(int id) {
+		games.remove(obterGame(id));
 	}
 	
 	public Games obterGame(int id) {
