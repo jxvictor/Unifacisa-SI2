@@ -20,6 +20,7 @@ import com.game.store.model.Games;
 import com.game.store.model.Response;
 import com.game.store.repository.Database;
 import com.game.store.repository.GamesRepository;
+import com.sun.net.httpserver.Authenticator.Result;
 
 @RestController
 @RequestMapping("/v2/games")
@@ -87,7 +88,29 @@ public class GamesMelhoradoController {
 		
 	}
 	
+	
 	@DeleteMapping("/{id}")
+	public ResponseEntity<Response<Games>> deletar(@PathVariable int id){
+		
+		Response<Games> response = new Response<Games>(); 
+		
+		
+		try
+		{	
+			response.setStatus(HttpStatus.OK.value());
+			gamesRepository.remover(id);
+			return ResponseEntity.ok(response);
+		}
+		catch(Exception e) {
+			
+			response.setStatus(HttpStatus.BAD_REQUEST.value());
+			response.getErros().put("1", "Falha ao remover game");
+			return ResponseEntity.ok(response);
+		}
+	}
+	
+	
+	/*@DeleteMapping("/{id}")
 	public ResponseEntity<String> deletar(@PathVariable int id){
 		
 		Response<String> response = new Response<String>();
@@ -101,16 +124,33 @@ public class GamesMelhoradoController {
 		catch(Exception e) {
 			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		}
-	}
+	}*/
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Games> editar(@PathVariable int id, @RequestBody Games game){
+	public ResponseEntity<Response<Games>> editar(@PathVariable int id, @Valid @RequestBody Games game, BindingResult result){
+		
+		Response<Games> response = new Response<Games>(); 
+		
 		try {
-			Games gameEditado = gamesRepository.editar(game, id);
-			return new ResponseEntity<Games>(gameEditado, HttpStatus.OK); 
+			if(result.hasErrors())
+			{			
+				response.setStatus(HttpStatus.BAD_REQUEST.value());
+				for(ObjectError  error : result.getAllErrors()) {
+					String key = String.valueOf(response.getErros().size() + 1);
+					
+					response.getErros().put(key, error.getDefaultMessage());
+				}
+				
+				return ResponseEntity.ok(response);
+			}
+			response.setStatus(HttpStatus.OK.value());
+			response.setDados(gamesRepository.editar(game, id));
+			return ResponseEntity.ok(response);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<Games>(HttpStatus.BAD_REQUEST);
+			response.setStatus(HttpStatus.BAD_REQUEST.value());
+			response.getErros().put("1", "Falha ao editar game");
+			return ResponseEntity.ok(response);
 		}
 	}
 }
